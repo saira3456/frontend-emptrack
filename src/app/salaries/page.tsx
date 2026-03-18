@@ -70,13 +70,13 @@ export default function SalariesPage() {
       render: (value) => formatMonthYear(String(value) + '-01'),
     },
     {
-      key: 'baseSalary',
+      key: 'basicSalary', // Changed from 'baseSalary' to 'basicSalary'
       label: 'Base Salary',
       render: (value) => <span className="font-mono text-foreground">${(value as number).toLocaleString()}</span>,
     },
     {
-      key: 'bonus',
-      label: 'Bonus',
+      key: 'allowances', // Changed from 'bonus' to 'allowances'
+      label: 'Allowances',
       render: (value) => <span className="font-mono text-green-600 dark:text-green-400">${(value as number).toLocaleString()}</span>,
     },
     {

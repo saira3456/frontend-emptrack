@@ -46,8 +46,47 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ProjectService, Project, ProjectAssignment } from 'services/project.service';
+import { ProjectService, Project } from 'services/project.service';
 import { EmployeeService } from 'services/employee.service';
+
+// Define extended type for team members with employee details
+interface TeamMember extends ProjectAssignment {
+  employeeName: string;
+  employeePosition: string;
+  employeeEmail?: string;
+  status: 'active' | 'inactive';
+}
+
+interface ProjectAssignment {
+  id: number;
+  employeeId: number;
+  projectId: number;
+  role: string;
+  hoursAllocated: number;
+  hoursWorked: number;
+  joinedDate: string;
+  assignmentStatus: string;
+  
+  // From projects table (joined data)
+  projectName: string;
+  projectDescription: string;
+  projectStatus: string;
+  startDate: string;
+  endDate: string;
+  budget: number;
+  
+  // Calculated fields
+  teamCount: number;
+  progress: number;
+}
+
+interface Employee {
+  id: number;
+  name: string;
+  position: string;
+  email: string;
+  department?: string;
+}
 
 function StatusBadge({ status }: { status: string }) {
   const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -79,6 +118,13 @@ function ProgressBar({ progress }: { progress: number }) {
   );
 }
 
+// Define form data type
+interface AssignmentFormData {
+  employeeId: string;
+  role: string;
+  hoursAllocated: string;
+}
+
 // Assign Employee Dialog
 function AssignEmployeeDialog({ 
   projectId, 
@@ -86,11 +132,11 @@ function AssignEmployeeDialog({
   availableEmployees = []
 }: { 
   projectId: number, 
-  onAssign: (data: any) => void,
-  availableEmployees: any[]
+  onAssign: (data: { employeeId: number; role: string; hoursAllocated: number }) => void,
+  availableEmployees: Employee[]
 }) {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AssignmentFormData>({
     employeeId: '',
     role: '',
     hoursAllocated: '',
@@ -129,7 +175,7 @@ function AssignEmployeeDialog({
             <Label htmlFor="employee" className="text-foreground">Employee</Label>
             <Select 
               value={formData.employeeId} 
-              onValueChange={(value) => setFormData({ ...formData, employeeId: value })}
+              onValueChange={(value: string) => setFormData({ ...formData, employeeId: value })}
               required
             >
               <SelectTrigger className="bg-background border-border/40">
@@ -155,7 +201,7 @@ function AssignEmployeeDialog({
               id="role"
               placeholder="e.g., Frontend Developer"
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, role: e.target.value })}
               className="bg-background border-border/40"
               required
             />
@@ -169,7 +215,7 @@ function AssignEmployeeDialog({
               type="number"
               placeholder="160"
               value={formData.hoursAllocated}
-              onChange={(e) => setFormData({ ...formData, hoursAllocated: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, hoursAllocated: e.target.value })}
               className="bg-background border-border/40"
               required
             />
@@ -204,8 +250,8 @@ export default function ProjectDetailsPage() {
   const projectId = Number(params.id);
   
   const [project, setProject] = useState<Project | null>(null);
-  const [teamMembers, setTeamMembers] = useState<ProjectAssignment[]>([]);
-  const [availableEmployees, setAvailableEmployees] = useState<any[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [availableEmployees, setAvailableEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -240,7 +286,8 @@ export default function ProjectDetailsPage() {
 
       // Load team members
       const team = await ProjectService.getProjectTeam(projectId);
-      setTeamMembers(team);
+      // Cast the team members to TeamMember type (assuming the service returns data with employee details)
+      setTeamMembers(team as TeamMember[]);
 
       // Load available employees (not in project)
       const available = await EmployeeService.getAvailableEmployeesForProject(projectId);
@@ -252,12 +299,12 @@ export default function ProjectDetailsPage() {
     }
   };
 
-  const handleAssignEmployee = async (assignment: any) => {
+  const handleAssignEmployee = async (assignment: { employeeId: number; role: string; hoursAllocated: number }) => {
     const result = await ProjectService.assignEmployeeToProject(projectId, assignment);
     if (result) {
       // Refresh team members
       const team = await ProjectService.getProjectTeam(projectId);
-      setTeamMembers(team);
+      setTeamMembers(team as TeamMember[]);
       
       // Refresh available employees
       const available = await EmployeeService.getAvailableEmployeesForProject(projectId);
@@ -271,7 +318,7 @@ export default function ProjectDetailsPage() {
       if (success) {
         // Refresh team members
         const team = await ProjectService.getProjectTeam(projectId);
-        setTeamMembers(team);
+        setTeamMembers(team as TeamMember[]);
         
         // Refresh available employees
         const available = await EmployeeService.getAvailableEmployeesForProject(projectId);
@@ -353,7 +400,7 @@ export default function ProjectDetailsPage() {
                   <Input
                     id="name"
                     value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, name: e.target.value })}
                     className="bg-background border-border/40"
                   />
                 </div>
@@ -361,7 +408,7 @@ export default function ProjectDetailsPage() {
                   <Label htmlFor="status">Status</Label>
                   <Select 
                     value={editForm.status} 
-                    onValueChange={(value: any) => setEditForm({ ...editForm, status: value })}
+                    onValueChange={(value: string) => setEditForm({ ...editForm, status: value as Project['status'] })}
                   >
                     <SelectTrigger className="bg-background border-border/40">
                       <SelectValue />
@@ -379,7 +426,7 @@ export default function ProjectDetailsPage() {
                   <Input
                     id="description"
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, description: e.target.value })}
                     className="bg-background border-border/40"
                   />
                 </div>
@@ -389,7 +436,7 @@ export default function ProjectDetailsPage() {
                     id="budget"
                     type="number"
                     value={editForm.budget}
-                    onChange={(e) => setEditForm({ ...editForm, budget: parseInt(e.target.value) })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, budget: parseInt(e.target.value) })}
                     className="bg-background border-border/40"
                   />
                 </div>
@@ -510,7 +557,7 @@ export default function ProjectDetailsPage() {
                           <div className="flex items-center gap-2">
                             <Avatar>
                               <AvatarFallback className="bg-primary/10 text-primary">
-                                {member.employeeName?.split(' ').map(n => n[0]).join('') || 'U'}
+                                {member.employeeName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                               </AvatarFallback>
                             </Avatar>
                             <div>
@@ -602,11 +649,11 @@ export default function ProjectDetailsPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">Created At</h3>
-                  <p className="text-foreground">{new Date(project.createdAt).toLocaleDateString()}</p>
+                  <p className="text-foreground">{project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">Last Updated</h3>
-                  <p className="text-foreground">{new Date(project.updatedAt).toLocaleDateString()}</p>
+                  <p className="text-foreground">{project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : 'N/A'}</p>
                 </div>
               </div>
             </CardContent>

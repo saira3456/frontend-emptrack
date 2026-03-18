@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { mockAttendance, mockEmployees } from '@/lib/mock-data';
 import { formatDate } from '@/lib/date-utils';
-import { Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, Moon, Umbrella } from 'lucide-react';
 
 export default function EmployeeAttendancePage() {
   const currentEmployee = mockEmployees[0];
@@ -15,9 +15,52 @@ export default function EmployeeAttendancePage() {
   // Calculate attendance stats
   const present = employeeAttendance.filter(a => a.status === 'present').length;
   const absent = employeeAttendance.filter(a => a.status === 'absent').length;
-  const late = employeeAttendance.filter(a => a.status === 'late').length;
+  const leave = employeeAttendance.filter(a => a.status === 'leave').length;
+  const halfDay = employeeAttendance.filter(a => a.status === 'half-day').length;
+  const holiday = employeeAttendance.filter(a => a.status === 'holiday').length;
+  
   const total = employeeAttendance.length;
-  const percentage = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
+  // Calculate present percentage (excluding holidays and leaves from total working days)
+  const workingDays = employeeAttendance.filter(a => 
+    a.status !== 'holiday' && a.status !== 'leave'
+  ).length;
+  const percentage = workingDays > 0 ? ((present / workingDays) * 100).toFixed(1) : 0;
+
+  // Function to get status badge styling
+  const getStatusBadgeClass = (status: string) => {
+    switch(status) {
+      case 'present':
+        return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      case 'absent':
+        return 'bg-red-500/10 text-red-700 dark:text-red-400';
+      case 'leave':
+        return 'bg-blue-500/10 text-blue-700 dark:text-blue-400';
+      case 'holiday':
+        return 'bg-purple-500/10 text-purple-700 dark:text-purple-400';
+      case 'half-day':
+        return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+      default:
+        return 'bg-gray-500/10 text-gray-700 dark:text-gray-400';
+    }
+  };
+
+  // Function to get status icon
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'present':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'absent':
+        return <XCircle className="w-5 h-5 text-red-600" />;
+      case 'leave':
+        return <Moon className="w-5 h-5 text-blue-600" />;
+      case 'holiday':
+        return <Umbrella className="w-5 h-5 text-purple-600" />;
+      case 'half-day':
+        return <Clock className="w-5 h-5 text-yellow-600" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <EmployeeLayoutWrapper>
@@ -27,7 +70,7 @@ export default function EmployeeAttendancePage() {
       </div>
 
       {/* Attendance Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <Card className="border-border/40 bg-card">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
@@ -39,6 +82,7 @@ export default function EmployeeAttendancePage() {
             </div>
           </CardContent>
         </Card>
+        
         <Card className="border-border/40 bg-card border-green-500/20">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
@@ -50,17 +94,31 @@ export default function EmployeeAttendancePage() {
             </div>
           </CardContent>
         </Card>
+
         <Card className="border-border/40 bg-card border-yellow-500/20">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Late</p>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{late}</p>
+                <p className="text-sm text-muted-foreground mb-1">Half Day</p>
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{halfDay}</p>
               </div>
               <Clock className="w-5 h-5 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border-border/40 bg-card border-blue-500/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Leave</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{leave}</p>
+              </div>
+              <Moon className="w-5 h-5 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="border-border/40 bg-card border-red-500/20">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
@@ -74,11 +132,26 @@ export default function EmployeeAttendancePage() {
         </Card>
       </div>
 
+      {/* Holiday Stats Card (if any) */}
+      {holiday > 0 && (
+        <Card className="border-border/40 bg-card border-purple-500/20 mb-4">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Holidays</p>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{holiday}</p>
+              </div>
+              <Umbrella className="w-5 h-5 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Attendance Percentage */}
       <Card className="border-border/40 bg-card mb-8">
         <CardHeader>
           <CardTitle>Attendance Percentage</CardTitle>
-          <CardDescription>Your overall attendance rate</CardDescription>
+          <CardDescription>Your overall attendance rate (excluding holidays and leaves)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-end gap-4">
@@ -91,7 +164,7 @@ export default function EmployeeAttendancePage() {
                 ></div>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                {present} days present out of {total} days
+                {present} days present out of {workingDays} working days
               </p>
             </div>
           </div>
@@ -112,21 +185,18 @@ export default function EmployeeAttendancePage() {
               employeeAttendance.slice(0, 20).map((record) => (
                 <div key={record.id} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
                   <div className="flex items-center gap-4 flex-1">
+                    {getStatusIcon(record.status)}
                     <div>
                       <p className="font-medium text-foreground">{formatDate(record.date)}</p>
                       <p className="text-xs text-muted-foreground">
                         {record.checkIn} - {record.checkOut || 'In Progress'}
+                        {record.leaveType && ` (${record.leaveType})`}
                       </p>
                     </div>
                   </div>
-                  <Badge className={
-                    record.status === 'present'
-                      ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-                      : record.status === 'late'
-                      ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
-                      : 'bg-red-500/10 text-red-700 dark:text-red-400'
-                  }>
-                    {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                  <Badge className={getStatusBadgeClass(record.status)}>
+                    {record.status === 'half-day' ? 'Half Day' : 
+                     record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                   </Badge>
                 </div>
               ))

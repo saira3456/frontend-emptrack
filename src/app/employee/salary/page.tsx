@@ -33,19 +33,19 @@ export default function EmployeeSalaryPage() {
             {/* Salary breakdown grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-4 bg-muted/20 rounded-lg border border-border/40">
-                <p className="text-sm text-muted-foreground mb-2">Base Salary</p>
+                <p className="text-sm text-muted-foreground mb-2">Basic Salary</p>
                 <p className="text-2xl font-bold text-foreground">
-                  ${employeeSalaries[0].baseSalary.toLocaleString()}
+                  ${employeeSalaries[0].basicSalary.toLocaleString()}
                 </p>
               </div>
               <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                <p className="text-sm text-muted-foreground mb-2">Bonus & Allowances</p>
+                <p className="text-sm text-muted-foreground mb-2">Allowances</p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  +${employeeSalaries[0].bonus.toLocaleString()}
+                  +${employeeSalaries[0].allowances.toLocaleString()}
                 </p>
               </div>
               <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                <p className="text-sm text-muted-foreground mb-2">Deductions & Tax</p>
+                <p className="text-sm text-muted-foreground mb-2">Deductions</p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   -${employeeSalaries[0].deductions.toLocaleString()}
                 </p>
@@ -73,16 +73,20 @@ export default function EmployeeSalaryPage() {
               <h3 className="font-semibold text-foreground text-sm">Earnings</h3>
               <div className="space-y-2 pl-4 border-l border-primary/20">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Base Salary</span>
-                  <span className="font-medium text-foreground">${employeeSalaries[0].baseSalary.toLocaleString()}</span>
+                  <span className="text-muted-foreground">Basic Salary</span>
+                  <span className="font-medium text-foreground">${employeeSalaries[0].basicSalary.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Bonus</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">+${(employeeSalaries[0].bonus * 0.7).toLocaleString()}</span>
+                  <span className="text-muted-foreground">Housing Allowance</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">+${(employeeSalaries[0].allowances * 0.5).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Allowances</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">+${(employeeSalaries[0].bonus * 0.3).toLocaleString()}</span>
+                  <span className="text-muted-foreground">Transport Allowance</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">+${(employeeSalaries[0].allowances * 0.3).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Other Allowances</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">+${(employeeSalaries[0].allowances * 0.2).toLocaleString()}</span>
                 </div>
               </div>
 
@@ -125,7 +129,7 @@ export default function EmployeeSalaryPage() {
                   <div className="flex-1">
                     <p className="font-medium text-foreground">{formatMonthYear(salary.month + '-01')}</p>
                     <p className="text-sm text-muted-foreground">
-                      Base: ${salary.baseSalary.toLocaleString()} | Net: ${salary.netSalary.toLocaleString()}
+                      Basic: ${salary.basicSalary.toLocaleString()} | Net: ${salary.netSalary.toLocaleString()}
                     </p>
                   </div>
                   <Button variant="outline" size="sm" className="border-border/40">

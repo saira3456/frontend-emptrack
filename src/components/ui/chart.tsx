@@ -92,6 +92,7 @@ ${colorConfig
       itemConfig.color
     return color ? `  --color-${key}: ${color};` : null
   })
+  .filter(Boolean)
   .join('\n')}
 }
 `,
@@ -104,9 +105,26 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+// Define a simpler interface for the tooltip content props
+interface TooltipContentProps {
+  active?: boolean;
+  payload?: any[];
+  className?: string;
+  indicator?: 'line' | 'dot' | 'dashed';
+  hideLabel?: boolean;
+  hideIndicator?: boolean;
+  label?: string;
+  labelFormatter?: (value: any, payload: any[]) => React.ReactNode;
+  labelClassName?: string;
+  formatter?: (value: any, name: string, item: any, index: number, payload: any) => React.ReactNode;
+  color?: string;
+  nameKey?: string;
+  labelKey?: string;
+}
+
 function ChartTooltipContent({
   active,
-  payload,
+  payload = [],
   className,
   indicator = 'dot',
   hideLabel = false,
@@ -118,14 +136,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<'div'> & {
-    hideLabel?: boolean
-    hideIndicator?: boolean
-    indicator?: 'line' | 'dot' | 'dashed'
-    nameKey?: string
-    labelKey?: string
-  }) {
+}: TooltipContentProps) {
   const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
@@ -153,7 +164,7 @@ function ChartTooltipContent({
       return null
     }
 
-    return <div className={cn('font-medium', labelClassName)}>{value}</div>
+    return <div className={cn('font-medium', labelClassName)}>{value as React.ReactNode}</div>
   }, [
     label,
     labelFormatter,
@@ -179,14 +190,14 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item, index) => {
+        {payload.map((item: any, index: number) => {
           const key = `${nameKey || item.name || item.dataKey || 'value'}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
-          const indicatorColor = color || item.payload.fill || item.color
+          const indicatorColor = color || item?.payload?.fill || item.color
 
           return (
             <div
-              key={item.dataKey}
+              key={`${item.dataKey}-${index}`}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center',
@@ -250,17 +261,22 @@ function ChartTooltipContent({
 
 const ChartLegend = RechartsPrimitive.Legend
 
+// Define a simpler interface for the legend content props
+interface LegendContentProps {
+  className?: string;
+  hideIcon?: boolean;
+  payload?: any[];
+  verticalAlign?: 'top' | 'bottom';
+  nameKey?: string;
+}
+
 function ChartLegendContent({
   className,
   hideIcon = false,
-  payload,
+  payload = [],
   verticalAlign = 'bottom',
   nameKey,
-}: React.ComponentProps<'div'> &
-  Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
-    hideIcon?: boolean
-    nameKey?: string
-  }) {
+}: LegendContentProps) {
   const { config } = useChart()
 
   if (!payload?.length) {
@@ -275,13 +291,13 @@ function ChartLegendContent({
         className,
       )}
     >
-      {payload.map((item) => {
+      {payload.map((item: any) => {
         const key = `${nameKey || item.dataKey || 'value'}`
         const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
         return (
           <div
-            key={item.value}
+            key={item.value || key}
             className={
               '[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3'
             }
@@ -307,7 +323,7 @@ function ChartLegendContent({
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
-  payload: unknown,
+  payload: any,
   key: string,
 ) {
   if (typeof payload !== 'object' || payload === null) {
@@ -325,17 +341,15 @@ function getPayloadConfigFromPayload(
 
   if (
     key in payload &&
-    typeof payload[key as keyof typeof payload] === 'string'
+    typeof payload[key] === 'string'
   ) {
-    configLabelKey = payload[key as keyof typeof payload] as string
+    configLabelKey = payload[key] as string
   } else if (
     payloadPayload &&
     key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === 'string'
+    typeof payloadPayload[key] === 'string'
   ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string
+    configLabelKey = payloadPayload[key] as string
   }
 
   return configLabelKey in config

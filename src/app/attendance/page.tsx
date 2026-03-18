@@ -17,6 +17,7 @@ function AttendanceStatusBadge({ status }: { status: AttendanceRecord['status'] 
     'absent': { bg: 'bg-red-500/10', text: 'text-red-700 dark:text-red-400' },
     'leave': { bg: 'bg-blue-500/10', text: 'text-blue-700 dark:text-blue-400' },
     'holiday': { bg: 'bg-purple-500/10', text: 'text-purple-700 dark:text-purple-400' },
+    'half-day': { bg: 'bg-yellow-500/10', text: 'text-yellow-700 dark:text-yellow-400' }, // Added missing status
   };
 
   const styles = config[status];
@@ -126,8 +127,10 @@ export default function AttendancePage() {
         </Card>
         <Card className="border-border/40 bg-card">
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground mb-1">Attendance Rate</p>
-            <p className="text-3xl font-bold text-foreground">94%</p>
+            <p className="text-sm text-muted-foreground mb-1">Half Day Today</p>
+            <p className="text-3xl font-bold text-foreground">
+              {mockAttendance.filter(a => a.status === 'half-day' && a.date === '2024-03-08').length}
+            </p>
           </CardContent>
         </Card>
       </div>
