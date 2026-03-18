@@ -14,10 +14,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export interface Column<T> {
-  key: keyof T;
+  key: keyof T | 'actions';
   label: string;
   sortable?: boolean;
-  render?: (value: T[keyof T], item: T) => ReactNode;
+  render?: (value: any, row?: T) => React.ReactNode;
   width?: string;
 }
 

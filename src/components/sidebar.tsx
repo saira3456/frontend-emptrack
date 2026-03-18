@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { BarChart3, Users, Building2, Briefcase, Calendar, DollarSign, FileText, Settings, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,22 @@ const bottomItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+  if (confirm('Are you sure you want to logout?')) {
+    // Clear everything
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      localStorage.clear(); // Extra safety
+    }
+    
+    // Force hard redirect to login
+    window.location.href = '/';
+  }
+};
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50">
@@ -40,7 +56,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {navigationItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link key={item.href} href={item.href}>
               <Button
@@ -78,9 +94,12 @@ export function Sidebar() {
             </Link>
           );
         })}
+        
+        {/* Logout Button */}
         <Button
           variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive"
+          onClick={handleLogout}
+          className="w-full justify-start text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
         >
           <LogOut className="w-4 h-4 mr-3" />
           Logout

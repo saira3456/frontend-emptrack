@@ -12,12 +12,12 @@ import { useAuth } from '@/lib/auth-context';
 export default function LoginPage() {
   const router = useRouter();
   const { user, isLoading: authLoading, login } = useAuth();
-  const [email, setEmail] = useState('admin@emptrack.com');
-  const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already logged in
+  // If already logged in, redirect immediately
   useEffect(() => {
     if (user) {
       if (user.role === 'admin') {
@@ -28,19 +28,34 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
       await login(email, password);
+      // No need to redirect here - useEffect will handle it
     } catch (err) {
+      console.error('❌ Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (user || authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg font-medium text-foreground">
+            {user ? 'Redirecting...' : 'Loading...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
@@ -67,7 +82,7 @@ export default function LoginPage() {
             <CardDescription>Sign in to your account to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground">
                   Email Address
@@ -80,6 +95,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-background border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary"
                   required
+                  disabled={isLoading || authLoading}
                 />
               </div>
 
@@ -91,6 +107,9 @@ export default function LoginPage() {
                   <Link href="#" className="text-xs text-primary hover:underline">
                     Forgot password?
                   </Link>
+                  <Link href="#" className="text-xs text-primary hover:underline">
+                    Reset password?
+                  </Link>
                 </div>
                 <Input
                   id="password"
@@ -100,6 +119,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-background border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary"
                   required
+                  disabled={isLoading || authLoading}
                 />
               </div>
 
@@ -112,39 +132,40 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading || authLoading}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium h-11"
               >
-                {isLoading || authLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </form>
 
             {/* Demo credentials */}
             <div className="mt-6 space-y-3">
-              <div className="p-3 bg-muted/20 rounded-lg border border-border/40">
-                <p className="text-xs font-semibold text-foreground mb-2">Admin Account:</p>
-                <p className="text-xs text-muted-foreground">
-                  Email: <span className="font-mono text-foreground">admin@emptrack.com</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Password: <span className="font-mono text-foreground">password</span>
-                </p>
-              </div>
-              <div className="p-3 bg-muted/20 rounded-lg border border-border/40">
-                <p className="text-xs font-semibold text-foreground mb-2">Employee Account:</p>
-                <p className="text-xs text-muted-foreground">
-                  Email: <span className="font-mono text-foreground">employee@emptrack.com</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Password: <span className="font-mono text-foreground">password</span>
-                </p>
-              </div>
+                <div className="space-y-2">
+                  <div 
+                    className="p-2 bg-primary/5 rounded cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => {
+                      setEmail('admin@emptrack.com');
+                      setPassword('password');
+                    }}
+                  >
+                    <p className="text-xs font-medium text-foreground">Admin Account:</p>
+                    <p className="text-xs text-muted-foreground font-mono">admin@emptrack.com / password</p>
+                  </div>
+                </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6">
-          © 2024 EmpTrack. All rights reserved.
+          © 2026 EmpTrack. All rights reserved.
         </p>
       </div>
     </div>

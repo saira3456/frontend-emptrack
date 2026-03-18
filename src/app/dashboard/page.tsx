@@ -36,7 +36,8 @@ const chartColors = [
 ];
 
 export default function DashboardPage() {
-  const activeProjects = mockProjects.filter((p) => p.status === 'In Progress').length;
+//   const activeProjects = mockProjects.filter((p) => p.status === 'In Progress').length;
+const activeProjects = mockProjects.filter((p) => p.status === 'in-progress').length;
   const totalBudget = mockProjects.reduce((sum, p) => sum + p.budget, 0);
 
   return (
