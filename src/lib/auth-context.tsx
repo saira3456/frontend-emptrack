@@ -23,6 +23,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
+// Get API URL from environment variable with fallback
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,61 +50,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-  setIsLoading(true);
-  try {
-    console.log('🔐 Login attempt for:', email);
-    
-    const res = await fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    
-    const data = await res.json();
-    console.log('📥 Login response:', data); // ✅ Check this
+    setIsLoading(true);
+    try {
+      console.log('🔐 Login attempt for:', email);
+      
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await res.json();
+      console.log('📥 Login response:', data); // ✅ Check this
 
-    if (!res.ok) {
-      throw new Error(data.message || 'Login failed');
-    }
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
 
-    if (data.token) {
-      console.log('✅ Token received, role:', data.role); // ✅ Check role
-      
-      const newUser: User = { 
-        id: data.id || (data.role === 'admin' ? 'admin' : data.id),
-        name: data.name || (data.role === 'admin' ? 'Administrator' : data.email.split('@')[0]),
-        email: data.email, 
-        role: data.role, 
-        token: data.token,
-        position: data.position,
-        department: data.department
-      };
-      
-      console.log('👤 User object created:', newUser); // ✅ Check user object
-      
-      setUser(newUser);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      console.log('💾 User saved to localStorage');
-    } else {
-      throw new Error('Invalid response from server');
+      if (data.token) {
+        console.log('✅ Token received, role:', data.role); // ✅ Check role
+        
+        const newUser: User = { 
+          id: data.id || (data.role === 'admin' ? 'admin' : data.id),
+          name: data.name || (data.role === 'admin' ? 'Administrator' : data.email.split('@')[0]),
+          email: data.email, 
+          role: data.role, 
+          token: data.token,
+          position: data.position,
+          department: data.department
+        };
+        
+        console.log('👤 User object created:', newUser); // ✅ Check user object
+        
+        setUser(newUser);
+        
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        
+        console.log('💾 User saved to localStorage');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    throw error;
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Separate admin login if needed
   const adminLogin = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/auth/login/admin', {
+      const res = await fetch(`${API_URL}/auth/login/admin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -136,7 +139,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const employeeLogin = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/auth/login/employee', {
+      const res = await fetch(`${API_URL}/auth/login/employee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -170,19 +173,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-  // Clear all storage
-  localStorage.removeItem('token');
-  localStorage.removeItem('role');
-  localStorage.removeItem('user');
-  
-  // Clear state
-  setUser(null);
-  
-  // Force a small delay then redirect
-  setTimeout(() => {
-    window.location.href = '/'; // Use window.location for hard redirect
-  }, 100);
-};
+    // Clear all storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('user');
+    
+    // Clear state
+    setUser(null);
+    
+    // Force a small delay then redirect
+    setTimeout(() => {
+      window.location.href = '/'; // Use window.location for hard redirect
+    }, 100);
+  };
 
   const value = {
     user,
