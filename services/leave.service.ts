@@ -1,4 +1,5 @@
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').trim();
+// const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').trim();
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL);
 
 export class LeaveService {
   static async getEmployeeLeaves(employeeId: string) {

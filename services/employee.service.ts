@@ -1,6 +1,8 @@
 import { Employee, CreateEmployeeDto } from '@/lib/types';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').trim();
+// const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').trim();
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL);
+
 
 export class EmployeeService {
   static async createEmployee(employeeData: CreateEmployeeDto): Promise<Employee> {

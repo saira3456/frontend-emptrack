@@ -1,6 +1,7 @@
 import { Department, CreateDepartmentDto } from '@/lib/types';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').trim();
+// const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').trim();
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL);
 
 export class DepartmentService {
   static async createDepartment(departmentData: CreateDepartmentDto): Promise<Department> {
