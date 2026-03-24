@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Employee, Department } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { EmployeeService } from 'services/employee.service';
-import { DepartmentService } from 'services/department.service';
+import { EmployeeService } from '@/services/employee.service';
+import { DepartmentService } from '@/services/department.service';
 
 interface NewEmployeeFormData {
   name: string;

@@ -46,8 +46,8 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ProjectService, Project } from 'services/project.service';
-import { EmployeeService } from 'services/employee.service';
+import { ProjectService, Project } from '@/services/project.service';
+import { EmployeeService } from '@/services/employee.service';
 
 // Define extended type for team members with employee details
 interface TeamMember extends ProjectAssignment {

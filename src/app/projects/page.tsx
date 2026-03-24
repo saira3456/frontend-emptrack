@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ProjectService, Project } from 'services/project.service';
+import { ProjectService, Project } from '@/services/project.service';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 

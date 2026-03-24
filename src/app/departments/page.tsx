@@ -9,8 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Department, Employee } from '@/lib/types';
-import { DepartmentService } from 'services/department.service';
-import { EmployeeService } from 'services/employee.service';
+import { DepartmentService } from '@/services/department.service';
+import { EmployeeService } from '@/services/employee.service';
 
 interface NewDepartmentFormData {
   name: string;

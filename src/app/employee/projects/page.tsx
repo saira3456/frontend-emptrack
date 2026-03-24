@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Briefcase, Users, Calendar, Loader2 } from 'lucide-react';
-import { ProjectService, ProjectAssignment } from 'services/project.service';
+import { ProjectService, ProjectAssignment } from '@/services/project.service';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 

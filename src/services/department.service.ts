@@ -7,8 +7,6 @@ export class DepartmentService {
   static async createDepartment(departmentData: CreateDepartmentDto): Promise<Department> {
     try {
       const url = `${API_BASE_URL}/departments`;
-      console.log('📤 Creating department at:', url);
-      console.log('📦 Department data:', departmentData);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -19,8 +17,6 @@ export class DepartmentService {
       });
 
       const responseText = await response.text();
-      console.log('📥 Response status:', response.status);
-      console.log('📥 Response body:', responseText);
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
@@ -44,7 +40,6 @@ export class DepartmentService {
   static async getAllDepartments(): Promise<Department[]> {
     try {
       const url = `${API_BASE_URL}/departments`;
-      console.log('📤 Fetching departments from:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -54,16 +49,12 @@ export class DepartmentService {
         cache: 'no-store',
       });
 
-      console.log('📥 Response status:', response.status);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Failed to fetch departments: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ Fetched departments:', data);
-
       return data;
     } catch (error) {
       console.error('❌ Error fetching departments:', error);
@@ -96,7 +87,6 @@ export class DepartmentService {
   static async deleteDepartment(id: string): Promise<any> {
     try {
       const url = `${API_BASE_URL}/departments/${id}`;
-      console.log('📤 Deleting department at:', url);
 
       const response = await fetch(url, {
         method: 'DELETE',
@@ -111,7 +101,6 @@ export class DepartmentService {
       }
 
       const data = await response.json();
-      console.log('✅ Department deleted:', data);
       return data;
     } catch (error) {
       console.error('❌ Error deleting department:', error);

@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Employee, SalaryRecord } from '@/lib/types';
 import { formatDate, formatMonthYear } from '@/lib/date-utils';
-import { EmployeeService } from 'services/employee.service';
-import { SalaryService } from 'services/salary.service';
-import { AuthService } from 'services/auth.service';
+import { EmployeeService } from '@/services/employee.service';
+import { SalaryService } from '@/services/salary.service';
+import { AuthService } from '@/services/auth.service';
 
 // Dummy projects data (temporary)
 const dummyProjects = [

@@ -184,3 +184,37 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+export interface Attendance {
+  id: number;
+  employeeId: number;
+  date: string;
+  status: 'present' | 'absent' | 'late' | 'half_day';
+  checkIn?: string;
+  checkOut?: string;
+  overtimeHours: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DailyAttendance {
+  employee: {
+    id: number;
+    name: string;
+    email: string;
+    position: string;
+    department: string;
+  };
+  attendance: Attendance | null;
+}
+
+export interface AttendanceSummary {
+  date: string;
+  totalEmployees: number;
+  present: number;
+  absent: number;
+  late: number;
+  halfDay: number;
+  totalOvertime: number;
+  attendanceRate: number;
+}
